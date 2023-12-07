@@ -1,0 +1,244 @@
+#include <iostream>
+#include <ctime>
+#include <stdlib.h>
+
+#include <string>
+using namespace std;
+// Definiciones globales
+const int SIZE = 3;
+// Estructura
+struct Jugador{
+    string nombre;
+    char marca;
+    int victorias;
+    int derrotas;
+    int empates;
+};
+struct Partidas{
+  int partidashuma;
+  int partidaspc;
+  int ganadaspc;
+  int empates;
+  int canceladas;
+};
+//Funciones
+//Funcion para limpiar pantalla
+void clearScreen(){
+    system("cls");//limpia la pantalla
+    cout<<endl;
+}
+//Funcion para inicializar el tablero
+void dibujarTablero(char tablero[]){
+  cout << " " << tablero[0] << " | " << tablero[1] << " | " << tablero[2] << endl;
+  cout << "-----------" << endl;
+  cout << " " << tablero[3] << " | " << tablero[4] << " | " << tablero[5] << endl;
+  cout << "-----------" << endl;
+  cout << " " << tablero[6] << " | " << tablero[7] << " | " << tablero[8] << endl;
+}
+//Funcion para buscar si hay ganador
+bool ganador(char tablero[]){
+  for (int i = 0; i < 3; i++){
+    if (tablero[i] == tablero[i + 3] && tablero[i] == tablero[i + 6] && tablero[i] != ' ') {
+      return true;
+    }
+  }// Verifica si hay tres marcas iguales en horizontal
+  for (int i = 0; i < 9; i += 3){
+    if (tablero[i] == tablero[i + 1] && tablero[i] == tablero[i + 2] && tablero[i] != ' ') {
+      return true;
+    }
+  }// Verifica si hay tres marcas iguales en vertical
+  if (tablero[0] == tablero[4] && tablero[0] == tablero[8] && tablero[0] != ' ') {
+    return true;
+  }
+  if (tablero[2] == tablero[4] && tablero[2] == tablero[6] && tablero[2] != ' ') {
+    return true;
+  }// Verifica si hay tres marcas iguales en diagonal
+  return false; //Solo si no hay ganador
+}
+//Funcion para buscar si hay un empate
+bool empate(char tablero[]){
+    for(int i = 0; i < 9; ++i){
+        if (tablero[i] != 'X' && tablero[i] != 'O'){
+            return false; //Si hay espacios libres sigue
+        }
+    }
+    return true;//Si ya no hay espacios disponibles, define el empate
+}
+//Funciones para jugar humano vs humano
+void unovsuno(Jugador &jugador1, Jugador &jugador2, char tablero[]){
+jugador1.nombre = "Jugador 1";
+jugador1.marca = 'X';
+jugador2.nombre = "Jugador 2";
+jugador2.marca = 'O';
+int jugador = 0;
+char conti;
+do{
+  while(true){
+      dibujarTablero(tablero);
+      cout<< "Turno del jugador "<<jugador + 1<<endl;
+      cout<<"Ingresa la posicion para colocar tu marca (1-9): ";
+      int posi;
+      cin >> posi;
+      if(posi==0){
+        cout<<"Partida cancelada";
+        break;
+    }
+    else{
+        if(posi < 1 || posi > 9 || tablero[posi - 1] == 'X' || tablero[posi - 1] == 'O'){
+        cout << "Posicion invalida. Intente de nuevo." << endl;
+        clearScreen();
+        continue;
+        }
+        else{
+          tablero[posi - 1] = (jugador == 0) ? 'X' : 'O';
+          if(ganador(tablero)){
+          dibujarTablero(tablero);
+          cout<<"¡El jugador "<< jugador + 1<<" ha ganado!"<< endl;
+          break;
+          }else if (empate(tablero)){
+              dibujarTablero(tablero);
+              cout<< "¡Empate!" << endl;
+              break;
+          }
+          jugador = (jugador + 1) % 2;
+          clearScreen();
+      }
+    }
+  }
+  cout<<"\n ¿Deseas jugar otra partida? (S/N)";
+    cin>>conti;
+}while (conti == 's' || conti == 'S');
+}
+//Funcion para jugar contra la computadora
+void iniciarPartidaHumanoVsComputadora(Jugador& jugador1, Jugador& computadora) {
+  int opc=0;
+  do
+  {
+      cin.clear();
+     cout<< "Selecciona quien prefieres que inicie la partida\n";
+     cout<< "1.- Inicia jugador 1\n";
+     cout<< "2.- Inicia computadora\n";
+     cin>> opc;
+    while (cin.fail()) {
+      cout << "Debe ingresar un número entero" << endl;
+      cin.clear();
+      cin >> opc;
+    }
+  }while(opc<1 || opc>2);  // Lógica para partida entre un jugador humano y la computadora
+}
+//Funcion para dar intrucciones al jugador
+void Instrucciones(){
+  int submenu;
+          do{ 
+              cout << "-------Intrucciones------" << endl;   
+              cout << "1. instrucciones del juego " << endl;
+              cout << "2. instrucciones del programa " << endl;
+              cout << "3. Volver al menu principal" << endl;
+              cout << " Elige una opcion " << endl;
+              cin >> submenu;
+              switch (submenu){
+                case 1: 
+                  cout<< " Tablero inicial: El juego se juega en un tablero 3x3. Los jugadores eligen quién será X y quién será O. Alternan turnos colocando su ficha en una casilla vacía."<<endl;
+                  cout<< " Turno de juego: En su turno, un jugador coloca su ficha (X o O) en una casilla vacia del tablero. Esto continua hasta que un jugador consigue tres fichas en linea o se llenan todas las casillas sin que ningun jugador gane. " << endl;
+                  cout<< "Ganar: Un jugador gana si consigue tener tres de sus fichas en línea horizontal, vertical o diagonal. El juego termina inmediatamente en cuanto esto sucede."<<endl;
+                  cout<< "Empate: Si todas las casillas se llenan y ninguno de los jugadores consigue alinear tres de sus fichas, se declara un empate." << endl ;
+                  cout << "Final del juego: Una vez que un jugador gana o se produce un empate, el juego termina y se puede iniciar una nueva partida si los jugadores desean continuar."<<endl;
+                break;
+              case 2: 
+                  cout<< "Antes de iniciar la partida el programa deberá preguntar que jugador desea que tire primero y tendrá 2 opciones (Inicia Jugador 1 o Inicia Computadora)"<<endl;
+                  cout<< "Una vez seleccionado el jugador que inicia la partida, se dibujará el tablero de 9 posiciones enumerados del 1 al 9, el jugador 1 marcará sus tiros con la letra X y la computadora marcará sus tiros con la letra O" << endl;
+                  cout<< "El jugador 1 podrá seleccionar cualquiera de las casillas disponibles, introduciendo el número de la asilla en la que desea tirar." <<endl;
+                  cout<< "Los tiros se realizarán de uno en uno, hasta que alguno de los 2 jugadores gane o se genere un empate."<<endl;
+                  cout<< "Si el jugador 1 introduce como tiro el número 0 (cero) la partida se cancela."<<endl;
+                  cout<< "En caso de que el tiro no sea cero o alguna casilla disponible, deberá mostrar un mensaje de opcion no valida y debera volver a preguntar el tiro para el jugador en turno."<<endl;
+                  cout<< "Una vez finalizada la partida el programa deberá mostrar el resultado (Jugador ganador, empate, partida cancelada) y preguntar si desea jugar otra partida de nueves S iniciará una nueva partida, sino regresará al menú principal o, teniendo como opciones S/N. Si la opcion." << endl;
+              break;
+             case 3: 
+                  cout << "!Mucha suerte¡"<<endl;
+              break; 
+              default:
+                cout<<"Opcion no valida. Intentalo de nuevo"<<endl;
+              break;
+        }
+   }while (submenu != 3); 
+}
+void Dificultad(int dificultad, char tablero[]){
+    if(dificultad==1){
+    int posi = rand() % 9; // Colocar la marca en una casilla aleatoria.
+    while (tablero[posi] != ' ') {
+        posi = rand() % 9;
+      }
+      tablero[posi] = 'O';}
+      if (dificultad == 2) {// Intentar bloquear las casillas que podrían llevar al jugador a ganar.
+      for (int i = 0; i < 9; i++) {
+        if (tablero[i] == ' ') {
+          if (ganador(tablero)) {
+            tablero[i] = 'O';
+            return;
+          } else if (ganador(tablero)) {
+            tablero[i] = 'X';
+            return;
+          }
+        }
+      }
+    }
+  }// Funcion para configurar la dificultad de la computadora
+
+void Estadisticas(const Jugador& jugador1, const Jugador& jugador2, const Partidas& partida){
+  cout<<"Numero de partidas jugadas J1 VS J2: "<<partida.partidashuma;
+  cout<<"Numero de partidas jugadas J1 VS COM: "<<partida.partidaspc;
+  cout<<"Numero de partidas ganadas por J1: "<<jugador1.victorias;
+  cout<<"Numero de partidas ganadas por J2: "<<jugador2.victorias;
+  cout<<"Numero de partidas ganadas por COMP: "<<partida.ganadaspc;
+  cout<<"Numero de partidas empatadas: "<<partida.empates;
+  cout<<"Numero de partidas canceladas: "<<partida.canceladas;
+}
+int main(){
+  Jugador jugador1, jugador2, computadora;
+  Partidas partida;
+  int dificultad = 0;
+  int dif=0;
+  char tablero[9] = { '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+  int opcion;
+    do {
+        cout << "------- MENU -------" << endl;
+        cout << "1. Juego: 1v1" << endl;
+        cout << "2. Juego contra la computadora" << endl;
+        cout << "3. Instrucciones." << endl;
+        cout << "4. Dificultad de la computadora." << endl;
+        cout << "5. Estadisticas del juego." << endl;
+        cout << "6. Salir." << endl;
+        cout << "Ingrese una opcion: ";
+        cin >> opcion;
+        switch (opcion) {
+            case 1:
+              unovsuno(jugador1, jugador2, tablero);
+                break;
+            case 2:
+                Dificultad(dificultad, tablero);
+                do{
+                  cout<<"Elige la dificultad\n";
+                  cout<<"1.- Facil\n";
+                  cout<<"2.- Dificil\n";
+                  cin>>dif;
+                  Dificultad(dif, tablero);
+                }while(dif!=2);
+                          break;
+                      case 3:
+                          Instrucciones();
+                          break;
+                      case 4:
+                          Dificultad(dif, tablero);
+                          break;
+                      case 5:
+                          Estadisticas(jugador1, jugador2, partida);
+                          break;
+                      case 6:
+                          cout << "¡Gracias por jugar!" << endl;
+                         break;
+                      default:
+                          cout << "Opcion no valida. Por favor ingrese una opcion valida." << endl;
+                }
+              }while (opcion != 6);
+              return 0;
+          }
